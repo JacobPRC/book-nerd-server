@@ -15,6 +15,13 @@ const {
   GraphQLInt,
 } = graphql;
 
+const resolveQuery = (db, doc) => {
+  return db[doc].map((item) => {
+    item.id = item._id;
+    return item;
+  });
+};
+
 const BioType = new GraphQLObjectType({
   name: "Bio",
   fields: () => ({
@@ -23,9 +30,9 @@ const BioType = new GraphQLObjectType({
     user: {
       type: UserType,
       resolve(parentValue, args) {
-        return Bio.findById(parentValue.id)
-          .populate("user")
-          .then((bio) => bio.user);
+        return Bio.findById(parentValue.id).then((bio) =>
+          resolveQuery(bio, "user")
+        );
       },
     },
   }),
@@ -41,42 +48,31 @@ const BookType = new GraphQLObjectType({
     about: {
       type: new GraphQLList(BioType),
       resolve(parentValue, args) {
-        return Book.findById(parentValue.id)
-          .populate("bio")
-          .then((book) => {
-            return book.about.map((item) => {
-              //   return console.log(item.content);
-              item.id = item._id;
-              return item;
-            });
-          });
+        return Book.findById(parentValue.id).then((book) =>
+          resolveQuery(book, "about")
+        );
       },
     },
     author: {
       type: new GraphQLList(UserType),
       resolve(parentValue, args) {
-        return Book.findById(parentValue.id).then((book) => {
-          return book.author.map((item) => {
-            item.id = item._id;
-            return item;
-          });
-        });
+        return Book.findById(parentValue.id).then((book) =>
+          resolveQuery(book, "author")
+        );
       },
     },
     paragraphs: {
       type: new GraphQLList(ParagraphType),
       resolve(parentValue, args) {
-        return Book.findById(parentValue.id)
-          .populate("paragraph")
-          .then((book) => book.paragraphs);
+        return Book.findById(parentValue.id).then((book) =>
+          book.paragraphs.map((book) => resolveQuery(book, "paragraphs"))
+        );
       },
     },
     comments: {
       type: new GraphQLList(CommentType),
       resolve(parentValue, args) {
-        return Book.findById(parentValue.id)
-          .populate("comments")
-          .then((book) => book.comments);
+        return Book.findById(parentValue.id).then((book) => resolveQuery(book));
       },
     },
   }),
@@ -90,17 +86,17 @@ const CommentType = new GraphQLObjectType({
     paragraph: {
       type: ParagraphType,
       resolve(parentValue, args) {
-        return Comments.findById(parentValue.id)
-          .populate("paragraph")
-          .then((comment) => comment.paragraph);
+        return Comments.findById(parentValue.id).then((comment) =>
+          resolveQuery(comment, "paragraph")
+        );
       },
     },
     book: {
       type: BookType,
       resolve(parentValue, args) {
-        return Comments.findById(parentValue.id)
-          .populate("book")
-          .then((comment) => comment.book);
+        return Comments.findById(parentValue.id).then((comment) =>
+          resolveQuery(comment, "book")
+        );
       },
     },
   }),
@@ -115,25 +111,25 @@ const ParagraphType = new GraphQLObjectType({
     author: {
       type: UserType,
       resolve(parentValue, args) {
-        return Paragraph.findById(parentValue.id)
-          .populate("user")
-          .then((paragraph) => paragraph.user);
+        return Paragraph.findById(parentValue.id).then((paragraph) =>
+          resolveQuery(paragraph, "author")
+        );
       },
     },
     comments: {
       type: new GraphQLList(CommentType),
       resolve(parentValue, args) {
-        return Paragraph.findById(parentValue.id)
-          .populate("comments")
-          .then((paragraph) => paragraph.comments);
+        return Paragraph.findById(parentValue.id).then((paragraph) =>
+          resolveQuery(paragraph, "comments")
+        );
       },
     },
     book: {
       type: BookType,
       resolve(parentValue, args) {
-        return Paragraph.findById(parentValue.id)
-          .populate("book")
-          .then((paragraph) => paragraph.book);
+        return Paragraph.findById(parentValue.id).then((paragraph) =>
+          resolveQuery((paragraph, "book"))
+        );
       },
     },
   }),
@@ -159,10 +155,7 @@ const UserType = new GraphQLObjectType({
       type: new GraphQLList(BookType),
       resolve(parentValue, args) {
         return User.findById(parentValue.id).then((user) =>
-          user.books.map((item) => {
-            item.id = item._id;
-            return item;
-          })
+          resolveQuery(user, "books")
         );
       },
     },

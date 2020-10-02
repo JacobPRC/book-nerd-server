@@ -9,19 +9,10 @@ mongoose.Types.ObjectId.prototype.valueOf = function () {
 const bookSchema = new Schema({
   title: String,
   author: { type: Schema.Types.Array, ref: "user" },
-  paragraphs: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "paragraph",
-    },
-  ],
+  paragraphs: { type: Schema.Types.Array, ref: "paragraph" },
   likes: { type: Number, default: 0 },
-  comments: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "comments",
-    },
-  ],
+  comments: { type: Schema.Types.Array, ref: "comments" },
+
   genre: String,
   about: { type: Schema.Types.Array, ref: "bio" },
 });
