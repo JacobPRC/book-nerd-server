@@ -17,6 +17,20 @@ const bookSchema = new Schema({
   about: { type: Schema.Types.Array, ref: "bio" },
 });
 
+bookSchema.statics.like = function (id) {
+  return Book.findById(id).then((book) => {
+    ++book.likes;
+    return book.save();
+  });
+};
+
+bookSchema.statics.unlike = function (id) {
+  return Book.findById(id).then((book) => {
+    --book.likes;
+    return book.save();
+  });
+};
+
 const Book = mongoose.model("book", bookSchema);
 
 module.exports = Book;

@@ -9,6 +9,20 @@ const commentsSchema = new Schema({
   likes: { type: Number, default: 0 },
 });
 
+commentsSchema.statics.like = function (id) {
+  return Comments.findById(id).then((comment) => {
+    ++comment.likes;
+    return comment.save();
+  });
+};
+
+commentsSchema.statics.unlike = function (id) {
+  return Comments.findById(id).then((comment) => {
+    --comment.likes;
+    return comment.save();
+  });
+};
+
 const Comments = mongoose.model("comments", commentsSchema);
 
 module.exports = Comments;

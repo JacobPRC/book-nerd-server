@@ -72,7 +72,9 @@ const BookType = new GraphQLObjectType({
     comments: {
       type: new GraphQLList(CommentType),
       resolve(parentValue, args) {
-        return Book.findById(parentValue.id).then((book) => resolveQuery(book));
+        return Book.findById(parentValue.id).then((book) =>
+          resolveQuery(book, "comments")
+        );
       },
     },
   }),
@@ -83,6 +85,7 @@ const CommentType = new GraphQLObjectType({
   fields: () => ({
     comment: { type: GraphQLString },
     likes: { type: GraphQLInt },
+    id: { type: GraphQLID },
     paragraph: {
       type: ParagraphType,
       resolve(parentValue, args) {
